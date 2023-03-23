@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    小技巧: 在根pom里面设置统一存放路径，统一管理方便维护
+    <properties>
+        <log-path>/app/logs</log-path>
+    </properties>
+    1. 其他模块加日志输出，直接copy本文件放在resources 目录即可
+    2. 注意修改 <property name="${log-path}/log.path" value=""/> 的value模块
+-->
+<configuration debug="false" scan="false">
+    <property name="log.path" value="${LOG_DIR}/logs"/>
+    <springProperty scope="context" name="serviceName" source="spring.application.name"/>
+    <property name="serviceName" value="${serviceName}"/>
+    <property name="log.gatherPath" value="logs/gather/"/>
+    <!-- 彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="patternSync" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%C.java:%L] - %msg%n"/>
+    <property name="patternAsyn"
+              value="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [traceId=%mdc{traceId:-}] [%C.java:%M:%L] - %msg%n"/>
+    <!--	<property name="patternAsynBill" value="%msg%n"/>-->
+
+    <conversionRule conversionWord="clr"
+                    converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <!-- Console log output -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Log file debug output -->
+    <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/archive/debug-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[debug] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Level: FATAL 0  ERROR 3  WARN 4  INFO 6  DEBUG 7 -->
+    <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="debug"/>
+    </root>
+
+    <!-- 网关请求日志自定义配置 -->
+    <appender name="gatewayAccessLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${log.path}/archive/access-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>[access] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+
+    <appender name="gatewayRequestLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/request.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${log.path}/archive/request-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>[request] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <appender name="gatewayConfigLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/config.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${log.path}/archive/config-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>[config] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <appender name="gatewayRemotingLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/remoting.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${log.path}/archive/remoting-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>[remoting] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <appender name="gatewayScheduleLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/schedule.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${log.path}/archive/schedule-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>[schedule] [%F-%L] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{80} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+            <outputPatternAsHeader>false</outputPatternAsHeader>
+        </encoder>
+    </appender>
+
+    <logger name="accessLog" additivity="false">
+        <appender-ref ref="gatewayAccessLogAppender" />
+    </logger>
+
+    <logger name="requestLog" additivity="false">
+        <appender-ref ref="gatewayRequestLogAppender" />
+    </logger>
+
+    <logger name="configLog" additivity="false">
+        <appender-ref ref="gatewayConfigLogAppender" />
+    </logger>
+
+    <logger name="remoteLog" additivity="false">
+        <appender-ref ref="gatewayRemotingLogAppender" />
+    </logger>
+
+    <logger name="scheduleLog" additivity="false">
+        <appender-ref ref="gatewayScheduleLogAppender" />
+    </logger>
+
+    <!--日志归集时，使用的日志文件输出配置结束  -->
+
+    <!--关闭EurekaClient info级别日志-->
+    <logger name="com.netflix" level="WARN"/>
+</configuration>
