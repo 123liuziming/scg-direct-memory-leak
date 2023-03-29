@@ -3,3 +3,6 @@ server:
   compression:
     enabled: ${ENABLE_RESPONSE_COMPRESSION:false}
     mime-types: text/xml,text/plain,text/css,application/javascript,application/x-javascript,application/rss+xml,application/xml,application/json,application/octet-stream
+spring:
+  codec:
+    max-in-memory-size: 100MB
